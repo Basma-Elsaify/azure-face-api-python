@@ -41,15 +41,9 @@ print('Detected face ID:')
 for face in detected_faces: print (face.face_id)
 print()
 
-first_image_face_ID = detected_faces[0]
+first_image_face = detected_faces[0]
 
-print('face_attributes -> emotion:')
-print('anger: ',first_image_face_ID.face_attributes.emotion.anger)
-print('contempt: ',first_image_face_ID.face_attributes.emotion.contempt)
-print('disgust: ',first_image_face_ID.face_attributes.emotion.disgust)
-print('fear: ',first_image_face_ID.face_attributes.emotion.fear)
-print('happiness: ',first_image_face_ID.face_attributes.emotion.happiness)
-print('neutral: ',first_image_face_ID.face_attributes.emotion.neutral)
-print('sadness: ',first_image_face_ID.face_attributes.emotion.sadness)
-print('surprise: ',first_image_face_ID.face_attributes.emotion.surprise)
+for attr,val in first_image_face.face_attributes.emotion.as_dict().items():
+    if val>0.5:
+        print(attr,val)
 ```
