@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Final face emotions detection
+# # Face emotions detection
 # ## this code block runs once
 
-# In[75]:
+# In[1]:
 
 
 import asyncio
@@ -26,9 +26,6 @@ KEY = "PASTE_YOUR_FACE_SUBSCRIPTION_KEY_HERE"
 ENDPOINT = "PASTE_YOUR_FACE_ENDPOINT_HERE"
 
 face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
-
-print('face_client', face_client)
-
 atts = ['age','gender','emotion']
 
 
@@ -41,33 +38,28 @@ atts = ['age','gender','emotion']
 # 
 # ## Detect from URL
 
-# In[56]:
+# In[2]:
 
 
+face_image = 'https://www.biography.com/.image/t_share/MTQ1MzAyNzYzOTgxNTE0NTEz/john-f-kennedy---mini-biography.jpg'
 
-single_face_image_url = 'https://www.biography.com/.image/t_share/MTQ1MzAyNzYzOTgxNTE0NTEz/john-f-kennedy---mini-biography.jpg'
-single_image_name = os.path.basename(single_face_image_url)
-
-detected_faces = face_client.face.detect_with_url(url=single_face_image_url, detection_model='detection_01', return_face_attributes=atts)
+detected_faces = face_client.face.detect_with_url(url=face_image, detection_model='detection_01', return_face_attributes=atts)
 
 
 # ## Detect local bytes stream image
 
-# In[67]:
+# In[7]:
 
 
-file_path = 'image.png'
-img = open(file_path, 'rb')
-single_image_name = os.path.basename(file_path)
-
-print(single_image_name)
+face_image = 'image.jpg'
+img = open(face_image, 'rb')
 
 detected_faces = face_client.face.detect_with_stream(img, detection_model='detection_01', return_face_attributes=atts)
 
 
 # ## Read from azure blob URL
 
-# In[76]:
+# In[12]:
 
 
 from azure.storage.blob import BlobServiceClient
@@ -80,42 +72,50 @@ container_client = blob_service_client.get_container_client(container_name)
 
 blob_img = container_client.get_blob_client('image_name.jpg')
 
-print(blob_img.url)
+face_image = blob_img.url
 
-single_face_image_url = blob_img.url
-single_image_name = os.path.basename(single_face_image_url)
-
-detected_faces = face_client.face.detect_with_url(url=single_face_image_url, detection_model='detection_01', return_face_attributes=atts)
+detected_faces = face_client.face.detect_with_url(url=face_image, detection_model='detection_01', return_face_attributes=atts)
 
 
 # # Display detected faces response attributes 
-# ## this code block runs once right after reading the image
+# ## the below code blocks run once right after reading the image
+# ### list detected faces ids
 
-# In[77]:
+# In[9]:
 
 
 if not detected_faces:
-    raise Exception('No face detected from image {}'.format(single_image_name))
+    raise Exception('No face detected from image')
 
-print('Detected face ID from', single_image_name, ':')
+print('Detected face ID:')
 for face in detected_faces: print (face.face_id)
 print()
 
-first_image_face_ID = detected_faces[0]
+first_image_face = detected_faces[0]
+
+
+# ### Display the emotion with probability higher than 50%
+
+# In[10]:
+
+
+for attr,val in first_image_face.face_attributes.emotion.as_dict().items():
+    if val>0.5:
+        print(attr,val)
+
+
+# ### Display all emotions with its probability
+
+# In[11]:
+
 
 print('face_attributes.emotion =================>')
-print('anger: ',first_image_face_ID.face_attributes.emotion.anger)
-print('contempt: ',first_image_face_ID.face_attributes.emotion.contempt)
-print('disgust: ',first_image_face_ID.face_attributes.emotion.disgust)
-print('fear: ',first_image_face_ID.face_attributes.emotion.fear)
-print('happiness: ',first_image_face_ID.face_attributes.emotion.happiness)
-print('neutral: ',first_image_face_ID.face_attributes.emotion.neutral)
-print('sadness: ',first_image_face_ID.face_attributes.emotion.sadness)
-print('surprise: ',first_image_face_ID.face_attributes.emotion.surprise)
-
-
-# In[ ]:
-
-
-
+print('anger: ',first_image_face.face_attributes.emotion.anger)
+print('contempt: ',first_image_face.face_attributes.emotion.contempt)
+print('disgust: ',first_image_face.face_attributes.emotion.disgust)
+print('fear: ',first_image_face.face_attributes.emotion.fear)
+print('happiness: ',first_image_face.face_attributes.emotion.happiness)
+print('neutral: ',first_image_face.face_attributes.emotion.neutral)
+print('sadness: ',first_image_face.face_attributes.emotion.sadness)
+print('surprise: ',first_image_face.face_attributes.emotion.surprise)
 
